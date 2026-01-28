@@ -1,0 +1,12 @@
+// Dashboard page specific styles
+
+:host {
+  display: block;
+}
+
+// Material icon size adjustments
+.mat-icon.text-xs {
+  font-size: 12px;
+  width: 12px;
+  height: 12px;
+}
