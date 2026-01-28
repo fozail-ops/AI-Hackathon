@@ -13,6 +13,16 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'standup',
+    loadComponent: () => import('./features/standup/pages/today-standup-page/today-standup-page').then(m => m.TodayStandupPageComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'history',
+    loadComponent: () => import('./features/standup/pages/history-page/history-page').then(m => m.HistoryPageComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: '**',
     redirectTo: ''
   }

@@ -1,13 +1,39 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using standupbot_backend.Data.Enums;
 
 namespace standupbot_backend.Data.Entities;
 
-[Table("user")]
+/// <summary>
+/// Represents a user in the StandupBot system.
+/// </summary>
+[Table("users")]
 public class User
 {
-    [Column("id")] public Guid Id { get; set; }
-    [Column("name"), StringLength(100)] public string Name { get; set; } = string.Empty;
-    [Column("email"), StringLength(75)] public string Email { get; set; } = string.Empty;
-
+    [Key]
+    [Column("id")]
+    public int Id { get; set; }
+    
+    [Column("name")]
+    [Required]
+    [StringLength(100)]
+    public required string Name { get; set; }
+    
+    [Column("email")]
+    [Required]
+    [StringLength(100)]
+    public required string Email { get; set; }
+    
+    [Column("role")]
+    public UserRole Role { get; set; } = UserRole.Member;
+    
+    [Column("team_id")]
+    public int TeamId { get; set; }
+    
+    [Column("created_at")]
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    
+    // Navigation properties
+    public virtual Team? Team { get; set; }
+    public virtual ICollection<Standup> Standups { get; set; } = [];
 }

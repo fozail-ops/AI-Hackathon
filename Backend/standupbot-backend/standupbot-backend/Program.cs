@@ -1,5 +1,7 @@
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using standupbot_backend.Data;
+using standupbot_backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,9 +16,33 @@ builder.Services.AddDbContext<StandupBotContext>(options =>
 });
 
 // ===============================
+// Services (Dependency Injection)
+// ===============================
+builder.Services.AddScoped<IStandupService, StandupService>();
+
+// ===============================
+// CORS
+// ===============================
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularApp", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
+// ===============================
 // Controllers
 // ===============================
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    });
 
 // ===============================
 // Swagger (API Documentation)
@@ -43,11 +69,18 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(options =>
     {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "StandupBot API v1");
-        options.RoutePrefix = "swagger"; // default
+        options.RoutePrefix = "swagger";
     });
 }
 
-app.UseHttpsRedirection();
+// CORS must be before authorization and HTTPS redirection
+app.UseCors("AllowAngularApp");
+
+// Only redirect to HTTPS in production (causes CORS preflight issues in development)
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthorization();
 

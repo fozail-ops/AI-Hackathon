@@ -1,0 +1,136 @@
+<!-- Today's Standup Page -->
+<div class="min-h-screen bg-gray-50">
+  
+  <!-- Header -->
+  <app-header />
+  
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+      
+      <!-- Page Header -->
+      <div class="mb-8">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center">
+            <mat-icon class="text-indigo-600">edit_note</mat-icon>
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900">
+              {{ isEditMode() ? 'Edit Today\'s Standup' : 'Submit Today\'s Standup' }}
+            </h1>
+            <p class="text-gray-500">{{ today() }}</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Status Badge -->
+      @if (isEditMode()) {
+        <div class="bg-green-50 border border-green-200 rounded-xl p-4 mb-6 flex items-center gap-3">
+          <mat-icon class="text-green-500">check_circle</mat-icon>
+          <div>
+            <p class="font-medium text-green-800">Standup submitted</p>
+            <p class="text-sm text-green-600">You can edit your standup until the end of today.</p>
+          </div>
+        </div>
+      } @else {
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 flex items-center gap-3">
+          <mat-icon class="text-amber-500">schedule</mat-icon>
+          <div>
+            <p class="font-medium text-amber-800">Standup pending</p>
+            <p class="text-sm text-amber-600">Please submit your daily standup.</p>
+          </div>
+        </div>
+      }
+      
+      <!-- Form Card -->
+      <mat-card class="shadow-lg rounded-2xl overflow-hidden">
+        <mat-card-header class="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white p-6">
+          <mat-card-title class="text-xl font-semibold flex items-center gap-2">
+            <mat-icon>{{ isEditMode() ? 'edit' : 'add_circle' }}</mat-icon>
+            {{ isEditMode() ? 'Update Your Standup' : 'Daily Standup Form' }}
+          </mat-card-title>
+          <mat-card-subtitle class="text-indigo-200 mt-1">
+            @if (currentUser(); as user) {
+              Submitting as {{ user.name }}
+            }
+          </mat-card-subtitle>
+        </mat-card-header>
+        
+        <mat-card-content class="p-6">
+          @if (loading() && !todayStandup()) {
+            <div class="flex justify-center items-center py-12">
+              <mat-spinner diameter="40"></mat-spinner>
+            </div>
+          } @else {
+            <app-standup-form
+              [standup]="todayStandup()"
+              [isLoading]="loading()"
+              [errorMessage]="error()"
+              (formSubmit)="onFormSubmit($event)"
+              (formCancel)="onFormCancel()" />
+          }
+        </mat-card-content>
+      </mat-card>
+      
+      <!-- Submitted Standup Preview -->
+      @if (todayStandup(); as standup) {
+        <mat-card class="mt-6 shadow-md rounded-xl">
+          <mat-card-header class="p-4 bg-gray-50 border-b border-gray-200">
+            <mat-card-title class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <mat-icon class="text-gray-500">visibility</mat-icon>
+              Current Submission Preview
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content class="p-4 space-y-4">
+            <!-- Jira ID & Progress -->
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm font-medium">
+                  {{ standup.jiraId }}
+                </span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-gray-600">Progress:</span>
+                <span class="font-semibold text-indigo-600">{{ standup.percentageComplete }}%</span>
+              </div>
+            </div>
+            
+            <!-- Task Description -->
+            <div>
+              <h4 class="text-sm font-medium text-gray-500 mb-1">What I worked on:</h4>
+              <p class="text-gray-900">{{ standup.taskDescription }}</p>
+            </div>
+            
+            <!-- Blocker -->
+            @if (standup.hasBlocker) {
+              <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+                <div class="flex items-center gap-2 mb-1">
+                  <mat-icon class="text-red-500 text-lg">block</mat-icon>
+                  <span class="font-medium text-red-800">Blocker</span>
+                  @if (standup.blockerStatus) {
+                    <span class="px-2 py-0.5 rounded-full text-xs font-medium"
+                      [class.bg-yellow-100]="standup.blockerStatus === 'New'"
+                      [class.text-yellow-800]="standup.blockerStatus === 'New'"
+                      [class.bg-red-100]="standup.blockerStatus === 'Critical'"
+                      [class.text-red-800]="standup.blockerStatus === 'Critical'"
+                      [class.bg-green-100]="standup.blockerStatus === 'Resolved'"
+                      [class.text-green-800]="standup.blockerStatus === 'Resolved'">
+                      {{ standup.blockerStatus }}
+                    </span>
+                  }
+                </div>
+                <p class="text-red-700">{{ standup.blockerDescription }}</p>
+              </div>
+            }
+            
+            <!-- Next Task -->
+            <div>
+              <h4 class="text-sm font-medium text-gray-500 mb-1">Next task:</h4>
+              <p class="text-gray-900">{{ standup.nextTask }}</p>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  </main>
+</div>

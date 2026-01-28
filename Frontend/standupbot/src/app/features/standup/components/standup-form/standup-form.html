@@ -1,0 +1,143 @@
+<!-- Standup Form -->
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+  
+  <!-- Error Message -->
+  @if (errorMessage()) {
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3">
+      <mat-icon class="text-red-500">error</mat-icon>
+      <span class="text-red-700">{{ errorMessage() }}</span>
+    </div>
+  }
+
+  <!-- Jira ID -->
+  <mat-form-field appearance="outline" class="w-full">
+    <mat-label>Jira ID</mat-label>
+    <input 
+      matInput 
+      formControlName="jiraId"
+      placeholder="e.g., PROJ-123"
+      class="text-gray-900">
+    <mat-icon matPrefix class="text-gray-400 mr-2">confirmation_number</mat-icon>
+    @if (form.get('jiraId')?.invalid && form.get('jiraId')?.touched) {
+      <mat-error>{{ getErrorMessage('jiraId') }}</mat-error>
+    }
+    <mat-hint>Enter the Jira ticket ID you're working on</mat-hint>
+  </mat-form-field>
+
+  <!-- Task Description -->
+  <mat-form-field appearance="outline" class="w-full">
+    <mat-label>What did you work on?</mat-label>
+    <textarea 
+      matInput 
+      formControlName="taskDescription"
+      rows="3"
+      placeholder="Describe what you accomplished..."
+      class="resize-none"></textarea>
+    <mat-icon matPrefix class="text-gray-400 mr-2">edit_note</mat-icon>
+    @if (form.get('taskDescription')?.invalid && form.get('taskDescription')?.touched) {
+      <mat-error>{{ getErrorMessage('taskDescription') }}</mat-error>
+    }
+    <mat-hint align="end">
+      {{ form.get('taskDescription')?.value?.length || 0 }} / 500
+    </mat-hint>
+  </mat-form-field>
+
+  <!-- Percentage Complete -->
+  <div class="space-y-2">
+    <label class="block text-sm font-medium text-gray-700">
+      Progress: {{ form.get('percentageComplete')?.value }}%
+    </label>
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Percentage Complete</mat-label>
+      <mat-select formControlName="percentageComplete">
+        @for (option of percentageOptions; track option.value) {
+          <mat-option [value]="option.value">{{ option.label }}</mat-option>
+        }
+      </mat-select>
+      <mat-icon matPrefix class="text-gray-400 mr-2">speed</mat-icon>
+    </mat-form-field>
+    
+    <!-- Progress Bar Visual -->
+    <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+      <div 
+        class="h-full bg-gradient-to-r from-indigo-500 to-indigo-600 transition-all duration-300"
+        [style.width.%]="form.get('percentageComplete')?.value">
+      </div>
+    </div>
+  </div>
+
+  <!-- Has Blocker Checkbox -->
+  <div class="bg-gray-50 rounded-xl p-4">
+    <mat-checkbox 
+      formControlName="hasBlocker" 
+      color="warn"
+      class="text-gray-900">
+      <span class="font-medium">I have a blocker</span>
+    </mat-checkbox>
+    
+    <!-- Blocker Description (conditional) -->
+    @if (hasBlocker) {
+      <div class="mt-4 animate-fade-in">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Blocker Description</mat-label>
+          <textarea 
+            matInput 
+            formControlName="blockerDescription"
+            rows="3"
+            placeholder="Describe what's blocking you..."
+            class="resize-none"></textarea>
+          <mat-icon matPrefix class="text-red-400 mr-2">block</mat-icon>
+          @if (form.get('blockerDescription')?.invalid && form.get('blockerDescription')?.touched) {
+            <mat-error>{{ getErrorMessage('blockerDescription') }}</mat-error>
+          }
+          <mat-hint align="end">
+            {{ form.get('blockerDescription')?.value?.length || 0 }} / 1000
+          </mat-hint>
+        </mat-form-field>
+      </div>
+    }
+  </div>
+
+  <!-- Next Task -->
+  <mat-form-field appearance="outline" class="w-full">
+    <mat-label>What will you work on next?</mat-label>
+    <textarea 
+      matInput 
+      formControlName="nextTask"
+      rows="3"
+      placeholder="Describe your next task..."
+      class="resize-none"></textarea>
+    <mat-icon matPrefix class="text-gray-400 mr-2">arrow_forward</mat-icon>
+    @if (form.get('nextTask')?.invalid && form.get('nextTask')?.touched) {
+      <mat-error>{{ getErrorMessage('nextTask') }}</mat-error>
+    }
+    <mat-hint align="end">
+      {{ form.get('nextTask')?.value?.length || 0 }} / 500
+    </mat-hint>
+  </mat-form-field>
+
+  <!-- Action Buttons -->
+  <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+    <button 
+      type="button"
+      mat-stroked-button
+      (click)="onCancel()"
+      [disabled]="isLoading()"
+      class="min-w-[100px]">
+      Cancel
+    </button>
+    <button 
+      type="submit"
+      mat-flat-button 
+      color="primary"
+      [disabled]="form.invalid || isLoading()"
+      class="min-w-[140px]">
+      @if (isLoading()) {
+        <mat-spinner diameter="20" class="inline-block mr-2"></mat-spinner>
+      } @else {
+        <mat-icon class="mr-1">{{ isEditMode ? 'save' : 'send' }}</mat-icon>
+      }
+      {{ isEditMode ? 'Update Standup' : 'Submit Standup' }}
+    </button>
+  </div>
+</form>

@@ -107,11 +107,15 @@
           [disabled]="!selectedUser() || isLoading()"
           (click)="login()">
           @if (isLoading()) {
-            <mat-icon class="animate-spin mr-2">refresh</mat-icon>
-            Signing in...
+            <ng-container>
+              <mat-icon class="animate-spin mr-2">refresh</mat-icon>
+              Signing in...
+            </ng-container>
           } @else {
-            <mat-icon class="mr-2">login</mat-icon>
-            Continue as {{ selectedUser()?.name || 'Selected User' }}
+            <ng-container>
+              <mat-icon class="mr-2">login</mat-icon>
+              Continue as {{ selectedUser()?.name || 'Selected User' }}
+            </ng-container>
           }
         </button>
       </mat-card-actions>

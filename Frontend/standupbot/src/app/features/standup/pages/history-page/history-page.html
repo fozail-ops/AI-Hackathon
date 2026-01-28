@@ -1,0 +1,114 @@
+<!-- History Page -->
+<div class="min-h-screen bg-gray-50">
+  
+  <!-- Header -->
+  <app-header />
+  
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-8">
+    <div class="max-w-3xl mx-auto">
+      
+      <!-- Page Header -->
+      <div class="mb-8">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center">
+            <mat-icon class="text-green-600">history</mat-icon>
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900">My Standup History</h1>
+            <p class="text-gray-500">Your last 10 standup submissions</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Loading State -->
+      @if (loading()) {
+        <div class="flex justify-center items-center py-12">
+          <mat-spinner diameter="40"></mat-spinner>
+        </div>
+      } @else if (history().length === 0) {
+        <!-- Empty State -->
+        <mat-card class="text-center py-12">
+          <div class="flex flex-col items-center justify-center text-gray-500">
+            <mat-icon class="text-6xl mb-4 text-gray-300">inbox</mat-icon>
+            <p class="text-lg font-medium">No standup history</p>
+            <p class="text-sm">Submit your first standup to see it here.</p>
+          </div>
+        </mat-card>
+      } @else {
+        <!-- History List -->
+        <div class="space-y-4">
+          @for (standup of history(); track standup.id) {
+            <mat-card class="hover:shadow-lg transition-shadow">
+              <mat-card-content class="p-4">
+                <div class="flex items-start justify-between gap-4">
+                  
+                  <!-- Left: Date and Jira -->
+                  <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                      <span class="text-lg font-semibold text-gray-900">
+                        {{ standup.date | date:'EEEE, MMM d, y' }}
+                      </span>
+                      <span class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm font-medium">
+                        {{ standup.jiraId }}
+                      </span>
+                    </div>
+                    
+                    <!-- Progress Bar -->
+                    <div class="flex items-center gap-3 mb-2">
+                      <span class="text-sm text-gray-500">Progress:</span>
+                      <div class="flex-1 max-w-xs h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          class="h-full transition-all duration-300"
+                          [class]="getProgressColor(standup.percentageComplete)"
+                          [style.width.%]="standup.percentageComplete">
+                        </div>
+                      </div>
+                      <span class="text-sm font-semibold" 
+                        [class.text-green-600]="standup.percentageComplete >= 80"
+                        [class.text-amber-600]="standup.percentageComplete >= 50 && standup.percentageComplete < 80"
+                        [class.text-indigo-600]="standup.percentageComplete < 50">
+                        {{ standup.percentageComplete }}%
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <!-- Right: Blocker Badge -->
+                  @if (standup.hasBlocker) {
+                    <div class="flex-shrink-0">
+                      @switch (standup.blockerStatus) {
+                        @case (BlockerStatus.New) {
+                          <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                            <mat-icon class="text-sm">warning</mat-icon>
+                            Blocker
+                          </span>
+                        }
+                        @case (BlockerStatus.Critical) {
+                          <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                            <mat-icon class="text-sm">error</mat-icon>
+                            Critical
+                          </span>
+                        }
+                        @case (BlockerStatus.Resolved) {
+                          <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                            <mat-icon class="text-sm">check_circle</mat-icon>
+                            Resolved
+                          </span>
+                        }
+                      }
+                    </div>
+                  }
+                </div>
+                
+                <!-- Submitted Time -->
+                <div class="mt-2 text-sm text-gray-400">
+                  Submitted at {{ standup.createdAt | date:'shortTime' }}
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      }
+    </div>
+  </main>
+</div>
