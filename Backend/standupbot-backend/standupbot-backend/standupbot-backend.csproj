@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>standupbot_backend</RootNamespace>
-    <UserSecretsId>047b2a7d-9d78-4e36-9971-9071389e796a</UserSecretsId>
+    <UserSecretsId>da4d14e5-697f-43c8-8ccb-dec668e1afe3</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
